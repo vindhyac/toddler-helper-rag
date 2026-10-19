@@ -22,11 +22,22 @@ question -> safety regex (emergency / crisis) -> embed query -> top-k entries (C
 
 ## Evaluation
 
-- 25-question golden set plus 8 held-out questions, scored with Recall@k and MRR.
-- Key finding: out-of-scope questions still score about 0.6+ similarity, so refusal can't rely on a retrieval threshold. It is handled in the prompt, with always-included safety entries and regex checks.
-- Failure analysis: one apparent content gap (S-052) was actually a retrieval miss, fixed by adding phrases to its search key.
+25-question golden set (each question lists the entry IDs a correct answer needs), scored with Recall@k and MRR.
 
-(Add your final Recall@k / MRR table here from the Colab runs.)
+| Metric | Baseline (title-only search key) |
+|---|---|
+| Recall@1 | 68% (17/25) |
+| Recall@3 | 72% (18/25) |
+| Recall@5 | 72% (18/25) |
+| MRR | 0.70 |
+
+**What the 7 misses at k=3 showed**
+
+- **5 of 7 were safety or out-of-scope questions** (potty training, baby sleep, screen time, "might have autism", "struggling to breathe"). Their expected entries are refusal/emergency entries (`X-01`, `X-03`, `X-05`), which are written as instructions, not topics, so similarity search can't find them. Out-of-scope questions also score about 0.6+ similarity against real entries, so a score threshold can't detect them either.
+- **Decision:** safety does not depend on retrieval. Emergency and crisis phrases are caught by regex before search, `X-05` and `X-01` are always included in the prompt, and the refusal sentence is fixed.
+- **2 of 7 were real retrieval misses** ("he slaps other kids" -> hitting entry `S-052`; "I yelled at her and feel terrible" -> repair entries `R-01`, `R-05`). The `S-052` miss looked like a content gap but was a vocabulary gap, fixed by adding "Parent might ask" phrases to the search key.
+
+(Add the improved search-key and held-out results here.)
 
 ## Two versions
 
