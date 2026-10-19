@@ -1,0 +1,426 @@
+<title>Toddler Helper</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gabarito:wght@500;600;700;800&family=Figtree:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* Layout: a field guide for hard moments. Sorbet colours, big tap targets for tired thumbs,
+   each exchange is a case card (what you said, then the steps) instead of chat bubbles. */
+:root {
+  --bg: #fff3ee;
+  --surface: #ffffff;
+  --ink: #2b1a3a;
+  --muted: #6b5877;
+  --line: #f0d9d2;
+  --accent: #b02a6b;
+  --tint: #fbe3ec;
+  --alert-bg: #ffe1d1;
+  --alert-ink: #6b2410;
+  --sun: #ff8a3d; --tomato: #d6336c; --mint: #b9e37e; --sky: #0e7c86; --lilac: #d6336c; --navy: #2b1a3a; --apricot: #ffb3c1;
+  --font-display: "Gabarito", "Trebuchet MS", system-ui, sans-serif;
+  --font-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1e1226; --surface: #2b1b38; --ink: #f7ecf2; --muted: #c4afcb; --line: #43304f;
+    --accent: #ff8fb8; --tint: #3a2447; --alert-bg: #4a2314; --alert-ink: #ffd9c9;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1e1226; --surface: #2b1b38; --ink: #f7ecf2; --muted: #c4afcb; --line: #43304f;
+  --accent: #ff8fb8; --tint: #3a2447; --alert-bg: #4a2314; --alert-ink: #ffd9c9;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 17px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 18px 12px;
+}
+.wrap { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; min-height: calc(100vh - 30px); }
+
+/* ---- brand ---- */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.mark { display: flex; align-items: flex-end; gap: 3px; height: 34px; }
+.mark i { display: block; width: 14px; }
+.mark i:nth-child(1) { height: 14px; background: var(--sun); border-radius: 50%; }
+.mark i:nth-child(2) { height: 22px; background: var(--sky); border-radius: 3px; }
+.mark i:nth-child(3) { height: 30px; background: var(--tomato); border-radius: 14px 14px 0 0; }
+.name { font-family: var(--font-display); font-weight: 800; font-size: 1.35rem; letter-spacing: -.01em; line-height: 1; }
+.link { font: inherit; font-size: .9rem; font-weight: 600; color: var(--accent); background: none; border: 0; padding: 8px 4px; cursor: pointer; }
+
+/* ---- hero ---- */
+.hero h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(2.1rem, 7.5vw, 3.2rem); line-height: 1.02; letter-spacing: -.02em; margin: 0 0 10px; text-wrap: balance; }
+.hero p { margin: 0; color: var(--muted); max-width: 46ch; font-size: 1.05rem; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-top: 22px; }
+.tile {
+  position: relative; text-align: left; font: inherit; border: 0; border-radius: 20px; padding: 16px; min-height: 118px;
+  display: flex; flex-direction: column; justify-content: flex-end; gap: 2px; cursor: pointer; overflow: hidden;
+  background: var(--tile); color: var(--tile-ink); transition: transform .15s ease;
+}
+.tile b { font-family: var(--font-display); font-weight: 700; font-size: 1.2rem; line-height: 1.1; }
+.tile span.h { font-size: .88rem; opacity: .85; }
+.tile::before { content: ""; position: absolute; top: 14px; right: 14px; width: 38px; height: 38px; background: var(--shape); }
+.tile.circle::before { border-radius: 50%; }
+.tile.square::before { border-radius: 8px; transform: rotate(8deg); }
+.tile.half::before { height: 20px; border-radius: 40px 40px 0 0; top: 32px; width: 42px; }
+.tile.arch::before { border-radius: 19px 19px 0 0; height: 42px; }
+.tile.tri::before { clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+.tile.pill::before { height: 20px; width: 46px; border-radius: 20px; top: 24px; }
+.t-sun { --tile: #ff8a3d; --tile-ink: #2b1a3a; --shape: rgba(43,26,58,.16); }
+.t-tomato { --tile: #ffb3c1; --tile-ink: #2b1a3a; --shape: rgba(43,26,58,.16); }
+.t-mint { --tile: #b9e37e; --tile-ink: #2b1a3a; --shape: rgba(43,26,58,.16); }
+.t-sky { --tile: #0e7c86; --tile-ink: #ffffff; --shape: rgba(255,255,255,.28); }
+.t-lilac { --tile: #d6336c; --tile-ink: #ffffff; --shape: rgba(255,255,255,.28); }
+.t-navy { --tile: #2b1a3a; --tile-ink: #ffffff; --shape: rgba(255,255,255,.22); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .t-navy { --tile: #4a2f63; } }
+:root[data-theme="dark"] .t-navy { --tile: #4a2f63; }
+@media (prefers-reduced-motion: no-preference) { .tile:hover { transform: translateY(-3px) rotate(-.6deg); } }
+.hero .tiny { margin-top: 18px; font-size: .9rem; }
+
+/* ---- a turn: what you said, then the guidance ---- */
+#log { display: flex; flex-direction: column; gap: 34px; flex: 1; padding-bottom: 8px; }
+.turn { scroll-margin-top: 14px; display: flex; flex-direction: column; gap: 14px; }
+.said { margin: 0; font-size: .78rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.ask { margin: 0; font-family: var(--font-display); font-weight: 700; font-size: clamp(1.4rem, 5vw, 1.9rem); line-height: 1.15; text-wrap: balance; overflow-wrap: anywhere; }
+.ans { display: flex; flex-direction: column; gap: 14px; }
+.ans p { margin: 0; }
+.ans .lead { font-size: 1.12rem; color: var(--ink); }
+.ans .sub { font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; margin-top: 4px; }
+.ans .note { color: var(--muted); font-size: .92rem; }
+.ans h4 { margin: 0 0 8px; font-family: var(--font-display); font-size: .78rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.steps li { display: flex; gap: 14px; align-items: flex-start; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 14px 16px; }
+.steps .n {
+  flex: none; width: 34px; height: 34px; border-radius: 11px; display: grid; place-items: center;
+  font-family: var(--font-display); font-weight: 800; color: #2b1a3a; background: #ff8a3d;
+}
+.steps li:nth-child(4n+2) .n { background: #b9e37e; }
+.steps li:nth-child(4n+3) .n { background: #ffb3c1; }
+.steps li:nth-child(4n+4) .n { background: #0e7c86; color: #fff; }
+.steps .n.dot { font-size: 1.4rem; }
+.steps li > div { min-width: 0; overflow-wrap: anywhere; }
+.steps li > div > strong:first-child { display: block; font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; }
+.avoid { border: 2px dashed var(--line); border-radius: 18px; padding: 14px 16px; }
+.avoid ul { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column; gap: 6px; color: var(--muted); }
+.cite { display: inline-block; font-size: .7rem; font-weight: 600; letter-spacing: .02em; color: var(--accent); background: var(--tint); border-radius: 6px; padding: 0 5px; margin-left: 4px; vertical-align: .12em; white-space: nowrap; }
+.refuse { display: flex; gap: 14px; align-items: flex-start; background: var(--tint); border-radius: 18px; padding: 16px; }
+.refuse .blk { flex: none; width: 30px; height: 30px; background: var(--lilac); border-radius: 50% 50% 8px 8px; }
+.status { display: flex; align-items: center; gap: 10px; color: var(--muted); }
+.dots { display: inline-flex; gap: 4px; }
+.dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); opacity: .35; }
+@media (prefers-reduced-motion: no-preference) { .dots i { animation: bob 1s infinite ease-in-out; } .dots i:nth-child(2) { animation-delay: .15s; } .dots i:nth-child(3) { animation-delay: .3s; } }
+@keyframes bob { 0%, 80%, 100% { opacity: .3; transform: none; } 40% { opacity: 1; transform: translateY(-4px); } }
+.alert { background: var(--alert-bg); color: var(--alert-ink); border-radius: 20px; padding: 18px; display: flex; flex-direction: column; gap: 6px; }
+.alert .big { font-family: var(--font-display); font-weight: 800; font-size: 2.6rem; line-height: 1; }
+.tools { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; }
+.based { font-size: .88rem; color: var(--muted); }
+.based summary { cursor: pointer; font-weight: 600; }
+.based ul { margin: 8px 0 0; padding-left: 1.1em; display: flex; flex-direction: column; gap: 3px; }
+.based b { color: var(--ink); font-weight: 600; }
+
+/* ---- breathing pause for hard moments (from the "breathe in for four, out for four" guidance) ---- */
+.breathe { display: flex; gap: 16px; align-items: center; background: var(--tint); border-radius: 20px; padding: 14px 16px; }
+.orb { flex: none; width: 64px; height: 64px; display: grid; place-items: center; }
+.orb i { display: block; width: 64px; height: 64px; border-radius: 50%; background: var(--sky); opacity: .9; grid-area: 1 / 1; }
+.orb span { grid-area: 1 / 1; z-index: 1; color: #fff; font-family: var(--font-display); font-weight: 700; font-size: .85rem; }
+.orb .out { opacity: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  .orb i { animation: swell 8s infinite ease-in-out; }
+  .orb .in { animation: lblin 8s infinite; } .orb .out { animation: lblout 8s infinite; }
+}
+@keyframes swell { 0%, 100% { transform: scale(.55); } 50% { transform: scale(1); } }
+@keyframes lblin { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+@keyframes lblout { 0%, 49% { opacity: 0; } 50%, 100% { opacity: 1; } }
+.breathe p { margin: 0; font-size: .98rem; }
+
+/* ---- composer ---- */
+.composer { position: sticky; bottom: 0; padding-top: 10px; background: linear-gradient(to bottom, transparent, var(--bg) 24%); display: flex; flex-direction: column; gap: 8px; }
+.field { display: flex; align-items: flex-end; gap: 8px; background: var(--surface); border: 2px solid var(--line); border-radius: 26px; padding: 6px 6px 6px 18px; }
+.field:focus-within { border-color: var(--accent); }
+textarea { flex: 1; min-width: 0; font: inherit; color: var(--ink); background: transparent; border: 0; outline: 0; resize: none; padding: 10px 0; max-height: 150px; }
+textarea::placeholder { color: var(--muted); opacity: .8; }
+.go { flex: none; width: 48px; height: 48px; border-radius: 50%; border: 0; background: var(--navy); color: #fff; display: grid; place-items: center; cursor: pointer; }
+:root[data-theme="dark"] .go { background: var(--sun); color: #2b1a3a; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .go { background: var(--sun); color: #2b1a3a; } }
+.go svg { width: 22px; height: 22px; }
+.go.stop { background: var(--apricot); color: #2b1a3a; }
+.go:disabled { opacity: .45; cursor: default; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+textarea:focus-visible { outline: none; } /* the rounded field already lights up via :focus-within */
+.opts { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; color: var(--muted); font-size: .85rem; padding: 0 6px; }
+.opts label { display: inline-flex; gap: 6px; align-items: center; cursor: pointer; }
+footer { color: var(--muted); font-size: .8rem; max-width: 70ch; padding: 0 6px; }
+@media (prefers-reduced-motion: no-preference) { .turn { animation: rise .25s ease-out; } }
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+</style>
+
+<div class="wrap">
+  <div class="top">
+    <div class="brand"><div class="mark" aria-hidden="true"><i></i><i></i><i></i></div><div class="name">Toddler Helper</div></div>
+    <button class="link" id="reset" type="button" hidden>Start over</button>
+  </div>
+
+  <section class="hero" id="hero">
+    <h1>What's happening right now?</h1>
+    <p>Pick the closest moment, or describe it in your own words. You will get a few steps you can try today.</p>
+    <div class="tiles" id="tiles"></div>
+  </section>
+
+  <div id="log" role="log" aria-label="Conversation"></div>
+
+  <div class="composer">
+    <div class="field">
+      <textarea id="q" rows="1" placeholder="He is throwing his food again…" aria-label="Describe your toddler situation"></textarea>
+      <button class="go" id="send" type="button" aria-label="Ask">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+      </button>
+      <button class="go stop" id="stop" type="button" aria-label="Stop" hidden>
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2.5"/></svg>
+      </button>
+    </div>
+    <div class="opts">
+      <span id="note"></span>
+    </div>
+    <footer>General parenting information, not medical advice. In an emergency call your local emergency number (112 in Germany and the EU).</footer>
+  </div>
+</div>
+
+<script>
+const KB = __KB__;
+
+const byId = Object.fromEntries(KB.map(e => [e.id, e]));
+const REFUSAL = "I am sorry, I cannot help you with this. Please reach out to an expert in the field to answer that for you.";
+const EMERGENCY = /(not breathing|can'?t breathe|cannot breathe|struggling to breathe|trouble breathing|choking|unconscious|unresponsive|seizure|bleeding|swallowed|poison|overdose|drown|head injury|blue lips)/i;
+const CRISIS = /((hurt|hit|shake|shook|harm)\w*\s+(my\s+)?(child|baby|toddler|son|daughter|kid)\b|about to lose it|lose (it|my temper|control)|breaking point|can'?t cope)/i;
+
+const RULES = `You are a warm, practical assistant helping a parent of a toddler.
+You answer ONLY using the entries inside <knowledge>. Never use the word "books" or mention "sources" or "entries" in your reply; speak naturally, as a knowledgeable helper would.
+
+Rules:
+1. Base every piece of advice on the entries. Do not add outside advice, studies, or statistics.
+2. After each piece of advice, cite the entry ID in square brackets, like [S-011].
+3. If the entries do not address the parent's actual situation, or the topic is out of scope (entry X-05 lists what is out of scope), reply with exactly this and nothing else:
+   "${REFUSAL}"
+   Do not add anything before or after it, and do not name specific specialists.
+4. If entries disagree (type D), explain both views briefly instead of picking silently.
+5. Never diagnose a child or give medical advice. If the parent describes danger, injury, or feeling out of control, put the safety guidance (X-02, X-03) first and encourage real-world help.
+6. Every sentence of advice must be traceable to an entry. Do not add your own reminders, encouragements, or tips, even sensible ones.
+7. If you use an entry marked APP, say it is general safety guidance rather than researched advice.
+8. Format exactly like this, with no headings and no extra sections:
+   - One short line of empathy.
+   - A numbered list of 3 to 5 steps. Start each step with a bold action of 2 to 5 words, then one or two plain sentences.
+   - A line that says **What to avoid:** followed by a bulleted list (leave this out if there is nothing to avoid).`;
+
+const INDEX = KB.map(e => `${e.id} | ${e.title}${e.ask ? " | " + e.ask : ""}`).join("\n");
+
+const TOPICS = [
+  { label: "Big feelings", hint: "Tantrums and meltdowns", q: "She has a huge meltdown when I say no", c: "sun", s: "circle" },
+  { label: "Hitting & biting", hint: "Lashing out", q: "He hits me when he is angry", c: "tomato", s: "square" },
+  { label: "Mealtime", hint: "Throwing, refusing", q: "He throws his food and laughs when I say no", c: "mint", s: "half" },
+  { label: "Bedtime", hint: "Stalling and routines", q: "Bedtime takes two hours and she keeps getting up", c: "sky", s: "arch" },
+  { label: "New baby", hint: "Jealousy, acting younger", q: "Since the baby arrived she acts like a baby again", c: "lilac", s: "tri" },
+  { label: "Out & about", hint: "Stores, car seats, parks", q: "She screams in the supermarket and everyone is staring", c: "navy", s: "pill" },
+];
+
+const $ = id => document.getElementById(id);
+const log = $("log"), q = $("q"), sendBtn = $("send"), stopBtn = $("stop"), note = $("note"), hero = $("hero"), resetBtn = $("reset");
+let sample = null, ctl = null, busy = false, lastParentMsg = null;
+const turns = []; // {ans, tools, raw}
+
+/* ---------- text rendering (pure) ---------- */
+function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+function titleOf(id) { return id === "APP" ? "General safety guidance" : (byId[id] ? byId[id].title : ""); }
+const CITE_GROUP = /\[((?:[PSRQDX]-\d{2,3}|APP)(?:\s*[,;]\s*(?:[PSRQDX]-\d{2,3}|APP))*)\]/g;
+function inlineMd(s, showCites) {
+  let h = esc(s).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/(^|\s)\*([^*\s][^*]*?)\*(?=\s|$|[.,;:!?)])/g, "$1<em>$2</em>");
+  h = h.replace(CITE_GROUP, (m, grp) => showCites
+    ? grp.split(/\s*[,;]\s*/).map(id => `<span class="cite" title="${esc(titleOf(id))}">${id}</span>`).join("")
+    : "");
+  return h.replace(/\s+([.,;:!?])/g, "$1");
+}
+const AVOID_HEAD = /^\s*(?:\*\*|__)?\s*(?:what to avoid|avoid)\b\s*:?\s*(?:\*\*|__)?\s*:?\s*/i;
+function renderAnswer(raw, showCites) {
+  const t = raw.trim();
+  if (!t) return "";
+  if (t.replace(/\s+/g, " ").startsWith("I am sorry, I cannot help you with this"))
+    return `<div class="refuse"><span class="blk"></span><p>${esc(t)}</p></div>`;
+  let html = "", list = null, mode = "main", tried = false, firstP = true;
+  const close = () => { if (list) { html += list === "avoid" ? "</ul></div>" : "</ol>"; list = null; } };
+  const openAvoid = () => { if (list !== "avoid") { close(); html += `<div class="avoid"><h4>Skip this</h4><ul>`; list = "avoid"; } };
+  for (const line0 of t.split("\n")) {
+    const line = line0.trim(); if (!line) continue;
+    let m;
+    if (AVOID_HEAD.test(line) && !/^\d+[.)]\s/.test(line)) {
+      mode = "avoid"; openAvoid();
+      const rest = line.replace(AVOID_HEAD, "");
+      if (rest) html += `<li>${inlineMd(rest, showCites)}</li>`;
+      continue;
+    }
+    if ((m = line.match(/^(\d+)[.)]\s+(.*)/))) {
+      if (mode === "avoid") { openAvoid(); html += `<li>${inlineMd(m[2], showCites)}</li>`; }
+      else {
+        if (list !== "steps") { close(); if (!tried) { html += `<h4>Try this</h4>`; tried = true; } html += `<ol class="steps">`; list = "steps"; }
+        html += `<li><span class="n">${m[1]}</span><div>${inlineMd(m[2], showCites)}</div></li>`;
+      }
+    } else if ((m = line.match(/^[-*•]\s+(.*)/))) {
+      if (mode === "avoid") { openAvoid(); html += `<li>${inlineMd(m[1], showCites)}</li>`; }
+      else {
+        if (list !== "steps") { close(); if (!tried) { html += `<h4>Try this</h4>`; tried = true; } html += `<ol class="steps">`; list = "steps"; }
+        html += `<li><span class="n dot">•</span><div>${inlineMd(m[1], showCites)}</div></li>`;
+      }
+    } else {
+      close();
+      const heading = /^\*\*[^*]+\*\*:?$/.test(line);
+      const cls = heading ? "sub" : (mode === "avoid" ? "note" : (firstP ? "lead" : "note"));
+      html += `<p class="${cls}">${inlineMd(line, showCites)}</p>`;
+      if (!heading) firstP = false;
+      mode = "main";
+    }
+  }
+  close();
+  return html;
+}
+function citedIds(raw) {
+  const ids = [];
+  for (const m of raw.matchAll(CITE_GROUP)) for (const id of m[1].split(/\s*[,;]\s*/)) if (id !== "APP" && byId[id] && !ids.includes(id)) ids.push(id);
+  return ids;
+}
+function basedOn(raw) {
+  const ids = citedIds(raw); if (!ids.length) return "";
+  return `<details class="based"><summary>Based on ${ids.length} ${ids.length === 1 ? "entry" : "entries"}</summary><ul>` +
+    ids.map(id => `<li><b>${id}</b> ${esc(byId[id].title)}</li>`).join("") + `</ul></details>`;
+}
+const BREATHE = `<div class="breathe"><div class="orb" aria-hidden="true"><i></i><span class="in">In</span><span class="out">Out</span></div><p><strong>Take one slow breath first.</strong> In through your nose for four counts, out for four. Then read on.</p></div>`;
+const STATUS = txt => `<div class="status"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span>${esc(txt)}</span></div>`;
+
+/* ---------- screen ---------- */
+function paint(t) {
+  const show = false; // entry IDs stay inside the prompt; readers never see them
+  t.ans.innerHTML = renderAnswer(t.raw, show);
+  t.tools.innerHTML = "";
+  if (t.final && t.raw && !t.alert) {
+    t.tools.innerHTML = (show ? basedOn(t.raw) : "") + `<button class="link" type="button" data-copy="1">Copy</button>`;
+    const b = t.tools.querySelector("button");
+    if (b) b.addEventListener("click", async () => {
+      const plain = t.raw.replace(CITE_GROUP, "").replace(/\s+([.,;:!?])/g, "$1").replace(/\*\*/g, "");
+      try { await navigator.clipboard.writeText(plain); b.textContent = "Copied"; } catch { b.textContent = "Select and copy"; }
+    });
+  }
+}
+function addTurn(text) {
+  hero.hidden = true; resetBtn.hidden = false;
+  const art = document.createElement("article"); art.className = "turn";
+  art.innerHTML = `<p class="said">You said</p><h2 class="ask"></h2><div class="extra"></div><div class="ans" aria-live="polite"></div><div class="tools"></div>`;
+  art.querySelector(".ask").textContent = text;
+  log.append(art);
+  art.scrollIntoView({ block: "start", behavior: "smooth" });
+  const t = { ans: art.querySelector(".ans"), tools: art.querySelector(".tools"), extra: art.querySelector(".extra"), raw: "", final: false, alert: false };
+  turns.push(t); return t;
+}
+
+/* ---------- retrieval: ask Claude which entries fit ---------- */
+function seeAlso(id) {
+  const m = byId[id].text.match(/\*\*See also:\*\*\s*(.+)/);
+  return m ? (m[1].match(/[PSRQDX]-\d{2,3}/g) || []) : [];
+}
+function buildKnowledge(ids) {
+  return ids.map(id => { const e = byId[id]; return `[${e.id}] ${e.title}\nSources: ${e.sources}\n${e.text}`; }).join("\n\n---\n\n");
+}
+async function pickEntries(searchText, signal) {
+  const prompt = `You route a parent's question to entries in a toddler-parenting knowledge base. Each line of the index is: ID | title | things parents ask.
+Pick up to 5 entries that would best help answer the question: the matching situation first, then any principle, FAQ or parent-self-care entry that clearly applies. Match on meaning, not exact words (for example "smacks" and "slaps" mean hitting).
+Reply with only a JSON array of IDs, best first, such as ["S-011","P-03"]. If nothing fits, reply [].
+
+INDEX:
+${INDEX}
+
+Parent's question: ${searchText}`;
+  const out = await sample.json(prompt, { modelTier: "quick", cache: false, signal });
+  const arr = Array.isArray(out) ? out : (out && Array.isArray(out.ids) ? out.ids : []);
+  return arr.filter(x => typeof x === "string" && byId[x]).slice(0, 5);
+}
+
+/* ---------- ask ---------- */
+const ERR = {
+  not_granted: "Claude access was declined for this page. Reload the page and allow it to continue.",
+  sampling_disabled: "Claude is not available for this account.",
+  rate_limited: "Too many requests, or your usage limit was reached. Please try again later.",
+  session_expired: "Your session expired. Please sign in again.",
+  prompt_too_large: "That message was too long. Please shorten it.",
+};
+async function ask(text) {
+  text = text.trim(); if (!text || busy) return;
+  q.value = ""; grow();
+  const t = addTurn(text);
+  if (EMERGENCY.test(text)) {
+    t.alert = true; t.ans.innerHTML = `<div class="alert"><span class="big">112</span><p>This could be a medical emergency. Stop here and call your local emergency number now (112 in Germany and across the EU; 911 in the US). If your child is not breathing, is choking, or is unresponsive, follow the dispatcher's instructions.</p><p class="note">This tool is for everyday parenting questions, not emergencies.</p></div>`;
+    return;
+  }
+  if (!sample) { t.ans.innerHTML = `<p class="note">This app needs to be opened inside claude.ai so it can ask Claude.</p>`; return; }
+
+  const crisis = CRISIS.test(text);
+  if (crisis) t.extra.innerHTML = BREATHE;
+  t.ans.innerHTML = STATUS("Finding the right pages…");
+  ctl = new AbortController(); setBusy(true);
+  try {
+    const short = text.split(/\s+/).length < 8;
+    const searchText = lastParentMsg && short ? `${lastParentMsg} ${text}` : text;
+    let ids = await pickEntries(searchText, ctl.signal);
+
+    const forced = crisis ? ["X-02"] : [];
+    ids = [...forced, ...ids.filter(i => !forced.includes(i))];
+    const extras = [];
+    for (const id of ids.slice(0, 2)) for (const s of seeAlso(id))
+      if (byId[s] && !ids.includes(s) && !extras.includes(s) && extras.length < 2) extras.push(s);
+    ids = [...ids, ...extras];
+    for (const must of ["X-05", "X-01"]) if (!ids.includes(must)) ids.push(must);
+
+    let prompt = `${RULES}\n\n<knowledge>\n${buildKnowledge(ids)}\n</knowledge>\n\n`;
+    if (searchText !== text) prompt += `Earlier message from the parent: ${lastParentMsg}\n`;
+    prompt += `Parent's question: ${text}`;
+
+    t.ans.innerHTML = STATUS("Writing it up…");
+    const res = await sample(prompt, {
+      modelTier: "quick", cache: false, signal: ctl.signal,
+      onText: ({ text: tx }) => { t.raw = tx; paint(t); },
+    });
+    t.raw = res.text; t.final = true; paint(t);
+    note.textContent = res.truncated ? "The last answer was cut short. Ask again for a shorter one." : "";
+    lastParentMsg = text;
+  } catch (e) {
+    if (e && e.code === "cancelled") { t.ans.innerHTML = t.raw ? t.ans.innerHTML : `<p class="note">Stopped.</p>`; }
+    else {
+      const msg = (e && ERR[e.code]) || "Something went wrong on my side. Please try again.";
+      if (e && e.text) { t.raw = e.text; paint(t); note.textContent = msg; }
+      else { t.raw = ""; t.ans.innerHTML = `<p class="note">${esc(msg)}</p>`; }
+    }
+  } finally { setBusy(false); ctl = null; }
+}
+function setBusy(v) { busy = v; sendBtn.hidden = v; stopBtn.hidden = !v; }
+
+/* ---------- wiring ---------- */
+function grow() { q.style.height = "auto"; q.style.height = Math.min(q.scrollHeight, 150) + "px"; }
+q.addEventListener("input", grow);
+q.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); ask(q.value); } });
+sendBtn.addEventListener("click", () => ask(q.value));
+stopBtn.addEventListener("click", () => ctl && ctl.abort());
+resetBtn.addEventListener("click", () => {
+  if (busy && ctl) ctl.abort();
+  log.innerHTML = ""; turns.length = 0; lastParentMsg = null; hero.hidden = false; resetBtn.hidden = true; note.textContent = "";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+for (const t of TOPICS) {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = `tile t-${t.c} ${t.s}`;
+  b.innerHTML = `<b>${esc(t.label)}</b><span class="h">${esc(t.hint)}</span>`;
+  b.addEventListener("click", () => ask(t.q));
+  $("tiles").append(b);
+}
+(async () => {
+  try { sample = window.claude?.use ? await window.claude.use("sample") : null; } catch { sample = null; }
+  if (!sample) note.textContent = "Open this page in claude.ai to ask questions.";
+})();
+</script>

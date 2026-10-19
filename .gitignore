@@ -1,0 +1,8 @@
+.env
+*.key
+__pycache__/
+kb_db/
+chroma/
+data/toddler_guidance_chunks.jsonl
+data/*.md
+web/toddler_helper.html
